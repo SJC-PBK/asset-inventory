@@ -1,0 +1,37 @@
+<%- include('partials/head', { title: isNew ? '자산 등록' : a.id + ' 고치기' }) %>
+<% const v = (k) => a[k] == null ? '' : a[k]; %>
+<h1><%= isNew ? '자산 등록' : a.id + ' 고치기' %></h1>
+<% if (typeof error !== 'undefined' && error) { %><p class="flash bad" role="alert"><%= error %></p><% } %>
+<form method="post" class="card form" action="<%= base %><%= isNew ? '/new' : '/a/' + encodeURIComponent(a.id) + '/edit' %>">
+  <div class="grid">
+    <label>관리번호
+      <input name="id" id="f-id" value="<%= isNew ? suggestId : a.id %>" required autocomplete="off"
+        <% if (isNew) { %>data-auto="1"<% } %> aria-describedby="id-help">
+      <small id="id-help"><%= isNew ? '구매일자 연도에 맞춰 다음 번호를 자동으로 넣습니다. 고쳐도 됩니다.' : '라벨을 이미 붙였다면 번호를 바꾸지 마세요(라벨을 다시 뽑아야 합니다).' %></small>
+    </label>
+    <label>원관리번호 <input name="old_id" value="<%= v('old_id') %>"></label>
+    <label class="wide">품명 <input name="name" value="<%= v('name') %>" required></label>
+    <label>품목종류 <input name="category" value="<%= v('category') %>" list="dl-category"></label>
+    <label>규격 <input name="spec" value="<%= v('spec') %>"></label>
+    <label>수량 <input name="qty" value="<%= v('qty') %>" inputmode="numeric"></label>
+    <label>단가(원) <input name="unit_price" value="<%= v('unit_price') %>" inputmode="numeric"></label>
+    <label>금액(원) <input name="amount" value="<%= v('amount') %>" inputmode="numeric" aria-describedby="amt-help">
+      <small id="amt-help">수량·단가가 있으면 곱한 값으로 저장합니다.</small></label>
+    <label>구매일자 <input type="date" name="purchase_date" id="f-date" value="<%= v('purchase_date') %>"></label>
+    <label>내용연수(년) <input name="useful_life" value="<%= v('useful_life') %>" inputmode="numeric"></label>
+    <label>현재위치 <input name="location" value="<%= v('location') %>" list="dl-location"></label>
+    <label>현 사용자 <input name="holder" value="<%= v('holder') %>" list="dl-holder"></label>
+    <label>담당부서 <input name="dept" value="<%= v('dept') %>" list="dl-dept"></label>
+    <label class="wide">관련기안 <input name="approval_doc" value="<%= v('approval_doc') %>" placeholder="문서번호·제목"></label>
+    <label class="wide">비고 <textarea name="note" rows="3"><%= v('note') %></textarea></label>
+    <label class="check wide"><input type="checkbox" name="label_mark" value="1"<%= a.label_mark ? ' checked' : '' %>> 라벨 인쇄 대상(유지보수 라벨)</label>
+  </div>
+  <% for (const k of ['location', 'holder', 'dept', 'category']) { %>
+    <datalist id="dl-<%= k %>"><% for (const o of opts[k]) { %><option value="<%= o %>"><% } %></datalist>
+  <% } %>
+  <div class="actions">
+    <button class="btn primary">저장</button>
+    <a class="btn" href="<%= base %><%= isNew ? '/' : '/a/' + encodeURIComponent(a.id) %>">취소</a>
+  </div>
+</form>
+<%- include('partials/foot') %>

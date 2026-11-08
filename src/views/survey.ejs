@@ -1,0 +1,35 @@
+<%- include('partials/head', { title: survey.title }) %>
+<% const open = !survey.closed_at; %>
+<div class="titlebar">
+  <h1><%= survey.title %><%= open ? '' : ' (마감)' %></h1>
+  <% if (open) { %><a class="btn primary big" href="<%= base %>/survey/scan">QR 찍어 조사하기</a><% } %>
+</div>
+<p class="stats">
+  <%= survey.started_at.slice(0, 16) %> 시작<%= open ? '' : ' · ' + survey.closed_at.slice(0, 16) + ' 마감' %> ·
+  조사 <b><%= done %></b> / <%= total %>건 (<%= total ? Math.round(done * 100 / total) : 0 %>%) · 변동 <b><%= changed %></b>건
+</p>
+<progress max="<%= total %>" value="<%= done %>" aria-label="조사 진행률"></progress>
+<div class="table-wrap">
+<table class="list">
+  <thead><tr><th scope="col">조사</th><th scope="col">관리번호</th><th scope="col">품명</th><th scope="col">현재위치</th><th scope="col">현 사용자</th><th scope="col">조사 일시</th><th scope="col">특이사항</th></tr></thead>
+  <tbody>
+  <% for (const r of rows) { %>
+    <tr<%= r.checked_at ? ' class="done"' : '' %>>
+      <td><%- r.checked_at ? '<span class="tag ok">완료' + (r.changed ? '·변동' : '') + '</span>' : '<span class="tag warn">미조사</span>' %></td>
+      <td><a href="<%= base %>/a/<%= encodeURIComponent(r.id) %>"><%= r.id %></a></td>
+      <td><%= r.name %></td><td><%= r.location %></td><td><%= r.holder %></td>
+      <td><%= r.checked_at ? r.checked_at.slice(5, 16) : '' %></td><td><%= r.remark || '' %></td>
+    </tr>
+  <% } %>
+  </tbody>
+</table>
+</div>
+<% if (open) { %>
+<form method="post" action="<%= base %>/survey/round/<%= survey.id %>/close" data-confirm="'<%= survey.title %>' 조사를 마칠까요? 기록은 그대로 남습니다." class="actions">
+  <button class="btn">조사 마치기</button>
+</form>
+<% } else { %>
+<p><a class="btn" href="<%= base %>/survey">← 재물조사</a></p>
+<% } %>
+<%- include('partials/rounds', { rounds }) %>
+<%- include('partials/foot') %>

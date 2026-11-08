@@ -1,0 +1,55 @@
+<%- include('partials/head', { title: '자산 목록' }) %>
+<div class="titlebar">
+  <h1>자산 목록</h1>
+  <a class="btn primary" href="<%= base %>/new">+ 자산 등록</a>
+</div>
+<p class="stats">
+  사용 중 <b><%= stats.active || 0 %></b>건 (<%= calc.won(stats.active_amount || 0) %>원) ·
+  불용 <b><%= stats.disused || 0 %></b>건 · 폐기 완료 <b><%= stats.discarded || 0 %></b>건
+  <% if (survey) { %> · <a href="<%= base %>/survey">'<%= survey.title %>' 조사 <%= checked.size %>건 완료</a><% } %>
+</p>
+<form class="filters" method="get" action="<%= base %>/" role="search">
+  <label class="grow">찾기 <input type="search" name="q" value="<%= f.q %>" placeholder="관리번호·품명·사용자·위치·기안"></label>
+  <label>담당부서
+    <select name="dept"><option value="">전체</option>
+      <% for (const v of opts.dept) { %><option<%= v === f.dept ? ' selected' : '' %>><%= v %></option><% } %>
+    </select></label>
+  <label>현재위치
+    <select name="location"><option value="">전체</option>
+      <% for (const v of opts.location) { %><option<%= v === f.location ? ' selected' : '' %>><%= v %></option><% } %>
+    </select></label>
+  <label>상태
+    <select name="state">
+      <% for (const [v, l] of [['active', '사용 중'], ['disused', '불용'], ['discarded', '폐기 완료'], ['all', '전체(불용 포함)']]) { %>
+        <option value="<%= v %>"<%= v === f.state ? ' selected' : '' %>><%= l %></option>
+      <% } %>
+    </select></label>
+  <button class="btn">보기</button>
+</form>
+<p class="muted"><%= rows.length %>건</p>
+<div class="table-wrap">
+<table class="list cards">
+  <thead><tr>
+    <th scope="col">사진</th><th scope="col">관리번호</th><th scope="col">품명</th><th scope="col">현재위치</th>
+    <th scope="col">현 사용자</th><th scope="col">담당부서</th><th scope="col" class="num">금액</th><th scope="col">구매일자</th>
+    <% if (survey) { %><th scope="col">조사</th><% } %>
+  </tr></thead>
+  <tbody>
+  <% for (const a of rows) { const st = calc.status(a); %>
+    <tr>
+      <td class="thumb"><% if (a.photo) { %><img src="<%= base %>/photos/<%= a.photo %>?thumb=1" alt="" loading="lazy"><% } %></td>
+      <td class="idc"><a href="<%= base %>/a/<%= encodeURIComponent(a.id) %>"><%= a.id %></a><% if (st !== '사용중') { %> <span class="tag <%= st === '불용' ? 'warn' : 'gone' %>"><%= st %></span><% } %></td>
+      <td class="nm"><%= a.name %><% if (a.spec) { %><div class="sub"><%= a.spec %></div><% } %></td>
+      <td data-label="위치"><%= a.location %></td>
+      <td data-label="사용자"><%= a.holder %></td>
+      <td data-label="부서"><%= a.dept %></td>
+      <td class="num" data-label="금액"><%= calc.won(a.amount) %></td>
+      <td data-label="구매"><%= a.purchase_date %></td>
+      <% if (survey) { %><td data-label="조사"><%- checked.has(a.id) ? '<span class="tag ok">완료</span>' : '<span class="muted">미조사</span>' %></td><% } %>
+    </tr>
+  <% } %>
+  <% if (!rows.length) { %><tr><td colspan="9" class="empty">자산이 없습니다.</td></tr><% } %>
+  </tbody>
+</table>
+</div>
+<%- include('partials/foot') %>

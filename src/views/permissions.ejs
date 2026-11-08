@@ -1,0 +1,33 @@
+<%- include('partials/head', { title: '권한' }) %>
+<h1>관리 권한</h1>
+<p class="muted">관리 권한이 있으면 <b>자산 삭제 · 목록 관리 · 이 화면</b>을 쓸 수 있습니다. 자산 등록·수정·재물조사·불용 처리·라벨 인쇄는 직원 누구나 합니다.<br>
+직원 명단은 직원 명부를 scripts/sync-staff.js 로 가져옵니다(마지막: <%= lastSync || '아직 없음' %>). 퇴사 처리된 사람은 권한이 있어도 들어오지 못합니다.</p>
+<% if (fixed.length) { %><p class="muted">설정 파일로 정한 관리자(여기서 뺄 수 없음): <%= fixed.join(', ') %></p><% } %>
+<% if (!rows.length) { %><p class="flash bad">직원 명부를 아직 가져오지 못했습니다. 지금은 기관 메일 계정이면 누구나 들어옵니다.</p><% } %>
+<div class="table-wrap">
+<table class="list">
+  <thead><tr><th scope="col">이름</th><th scope="col">부서</th><th scope="col">직위</th><th scope="col">상태</th><th scope="col">메일</th><th scope="col">관리 권한</th></tr></thead>
+  <tbody>
+  <% for (const s of rows) { const has = !!s.granted_at || fixed.includes(s.email); %>
+    <tr<%= s.status === 'retired' ? ' class="done"' : '' %>>
+      <td><%= s.name %></td><td><%= s.dept %></td><td><%= s.position %></td>
+      <td><%= STATUS[s.status] || s.status %></td><td class="muted"><%= s.email %></td>
+      <td>
+        <% if (fixed.includes(s.email)) { %><span class="tag ok">설정 파일</span>
+        <% } else if (s.status === 'retired') { %><%= has ? '(퇴사 — 효력 없음)' : '' %>
+        <% } %>
+        <% if (!fixed.includes(s.email) && (s.status !== 'retired' || has)) { %>
+        <form method="post" action="<%= base %>/permissions" class="inline-form">
+          <input type="hidden" name="email" value="<%= s.email %>">
+          <input type="hidden" name="on" value="<%= has ? '0' : '1' %>">
+          <button class="btn<%= has ? ' warn' : '' %>"><%= has ? '권한 빼기' : '권한 주기' %></button>
+        </form>
+        <% if (has) { %><div class="sub"><%= s.granted_at.slice(0, 10) %> · <%= s.granted_by %></div><% } %>
+        <% } %>
+      </td>
+    </tr>
+  <% } %>
+  </tbody>
+</table>
+</div>
+<%- include('partials/foot') %>

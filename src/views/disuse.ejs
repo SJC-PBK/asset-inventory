@@ -1,0 +1,35 @@
+<%- include('partials/head', { title: a.id + ' 불용' }) %>
+<% const enc = encodeURIComponent(a.id); const dv = (k) => d[k] == null ? '' : d[k]; %>
+<h1><%= a.id %> <%= a.name %> — <%= a.disused ? '불용 정보' : '불용 처리' %></h1>
+<form method="post" class="card form" action="<%= base %>/a/<%= enc %>/disuse">
+  <div class="grid">
+    <fieldset class="wide"><legend>상태</legend>
+      <% for (const g of ['A', 'B', 'C', 'D']) { %>
+        <label class="check inline"><input type="radio" name="grade" value="<%= g %>"<%= dv('grade') === g ? ' checked' : '' %>> <%= g %></label>
+      <% } %>
+    </fieldset>
+    <label>불용결정일자 <input type="date" name="decided_on" value="<%= dv('decided_on') %>"></label>
+    <label>처리일자 <input type="date" name="processed_on" value="<%= dv('processed_on') %>"></label>
+    <label class="wide">불용결정사유 <input name="reason" value="<%= dv('reason') %>"></label>
+    <label>물품소재지 <input name="place" value="<%= dv('place') %>"></label>
+    <label>처분의견 <input name="opinion" value="<%= dv('opinion') %>"></label>
+    <label class="wide">처리결과 <input name="result" value="<%= dv('result') %>"></label>
+    <label class="wide">비고 <input name="note" value="<%= dv('note') %>"></label>
+  </div>
+  <div class="actions">
+    <button class="btn primary"><%= a.disused ? '저장' : '불용 처리' %></button>
+    <a class="btn" href="<%= base %>/a/<%= enc %>">취소</a>
+  </div>
+</form>
+<% if (a.disused && !a.discard_date) { %>
+<form method="post" class="card form" action="<%= base %>/a/<%= enc %>/discard">
+  <h2>폐기 완료</h2>
+  <p class="muted">실제로 처분(폐기·매각 등)을 마쳤을 때 적습니다. 목록에서 '폐기 완료'로 따로 보입니다.</p>
+  <div class="grid">
+    <label>폐기일자 <input type="date" name="discard_date" value="<%= calc.today() %>" required></label>
+    <label class="wide">폐기사유 <input name="discard_reason"></label>
+  </div>
+  <div class="actions"><button class="btn warn">폐기 완료로 바꾸기</button></div>
+</form>
+<% } %>
+<%- include('partials/foot') %>

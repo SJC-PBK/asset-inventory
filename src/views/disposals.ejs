@@ -1,0 +1,18 @@
+<%- include('partials/head', { title: '불용물품' }) %>
+<h1>불용물품</h1>
+<p class="muted"><%= rows.length %>건 · 자산 상세 화면에서 [불용 처리]를 누르면 여기에 들어옵니다.</p>
+<div class="table-wrap">
+<table class="list">
+  <thead><tr><th scope="col">관리번호</th><th scope="col">품명</th><th scope="col">상태</th><th scope="col">불용결정일자</th>
+    <th scope="col">불용결정사유</th><th scope="col">물품소재지</th><th scope="col">처분의견</th><th scope="col" class="num">금액</th><th scope="col">폐기</th></tr></thead>
+  <tbody>
+  <% for (const d of rows) { %>
+    <tr><td><a href="<%= base %>/a/<%= encodeURIComponent(d.asset_id) %>"><%= d.asset_id %></a></td><td><%= d.name %></td>
+      <td><%= d.grade %></td><td><%= d.decided_on %></td><td><%= d.reason %></td><td><%= d.place %></td><td><%= d.opinion %></td>
+      <td class="num"><%= calc.won(d.amount) %></td><td><%= d.discard_date || '' %></td></tr>
+  <% } %>
+  <% if (!rows.length) { %><tr><td colspan="9" class="empty">불용물품이 없습니다.</td></tr><% } %>
+  </tbody>
+</table>
+</div>
+<%- include('partials/foot') %>

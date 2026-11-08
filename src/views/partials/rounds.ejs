@@ -1,0 +1,10 @@
+<% if (rounds.length) { %>
+<section class="card">
+  <h2>조사 기록</h2>
+  <ul class="plain">
+  <% for (const r of rounds) { %>
+    <li><a href="<%= base %>/survey/round/<%= r.id %>"><%= r.title %></a> — <%= r.started_at.slice(0, 10) %><%= r.closed_at ? ' ~ ' + r.closed_at.slice(0, 10) : ' (진행 중)' %>, <%= r.checked %>건 조사</li>
+  <% } %>
+  </ul>
+</section>
+<% } %>

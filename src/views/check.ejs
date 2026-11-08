@@ -1,0 +1,31 @@
+<%- include('partials/head', { title: a.id + ' 조사' }) %>
+<% const st = calc.status(a); %>
+<h1><%= a.id %> <span class="muted small">조사 기록</span></h1>
+<% if (st !== '사용중') { %><p class="flash bad">이 자산은 '<%= st %>' 상태입니다. 그래도 조사 기록은 남길 수 있습니다.</p><% } %>
+<% if (prev) { %><p class="flash ok">이번 조사에서 이미 <%= prev.checked_at.slice(5, 16) %> 에 기록했습니다. 다시 저장하면 덮어씁니다.</p><% } %>
+<div class="card check-info">
+  <% if (a.photo) { %><img class="photo small" src="<%= base %>/photos/<%= a.photo %>?thumb=1" alt=""><% } %>
+  <div>
+    <p class="name"><b><%= a.name %></b> <%= a.spec %></p>
+    <p>위치 <b><%= a.location || '-' %></b> · 사용자 <b><%= a.holder || '-' %></b> · 부서 <b><%= a.dept || '-' %></b></p>
+    <p class="muted">구매 <%= a.purchase_date %> · <%= calc.won(a.amount) %>원<%= a.old_id ? ' · 원관리번호 ' + a.old_id : '' %></p>
+  </div>
+</div>
+<form method="post" action="<%= base %>/survey/check" class="card form">
+  <input type="hidden" name="id" value="<%= a.id %>">
+  <label>조사특이사항 <input name="remark" value="<%= prev ? prev.remark : '' %>" placeholder="없으면 비워 두세요"></label>
+  <label class="check"><input type="checkbox" name="changed" value="1" id="changed"<%= prev && prev.changed ? ' checked' : '' %>> 위치·사용자·부서가 바뀌었음</label>
+  <div class="grid" id="change-fields"<%= prev && prev.changed ? '' : ' hidden' %>>
+    <label>현재위치 <input name="location" value="<%= a.location %>" list="dl-location"></label>
+    <label>현 사용자 <input name="holder" value="<%= a.holder %>" list="dl-holder"></label>
+    <label>담당부서 <input name="dept" value="<%= a.dept %>" list="dl-dept"></label>
+  </div>
+  <% for (const k of ['location', 'holder', 'dept']) { %>
+    <datalist id="dl-<%= k %>"><% for (const o of opts[k]) { %><option value="<%= o %>"><% } %></datalist>
+  <% } %>
+  <div class="actions">
+    <button class="btn primary big">조사 완료</button>
+    <a class="btn" href="<%= base %>/survey/scan">취소</a>
+  </div>
+</form>
+<%- include('partials/foot') %>

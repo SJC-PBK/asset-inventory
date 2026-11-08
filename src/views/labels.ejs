@@ -1,0 +1,20 @@
+<%- include('partials/head', { title: '라벨 인쇄' }) %>
+<h1>라벨 인쇄 <span class="muted small">폼텍 3218 (A4 18칸, 63.5×45mm)</span></h1>
+<form method="get" action="<%= base %>/labels/print" target="_blank" class="card form">
+  <fieldset><legend>무엇을 뽑을까요?</legend>
+    <label class="check"><input type="radio" name="mode" value="all" checked> 사용 중 자산 전체 (<%= all %>건, 불용 제외)</label>
+    <label class="check"><input type="radio" name="mode" value="marked"> 라벨 대상으로 표시한 자산만 — 유지보수 라벨 (<%= marked %>건)</label>
+    <label class="check"><input type="radio" name="mode" value="ids"<%= ids ? ' checked' : '' %>> 관리번호를 직접 적은 것</label>
+    <label>관리번호 (띄어쓰기·쉼표·줄바꿈으로 구분) <textarea name="ids" rows="3"><%= ids %></textarea></label>
+  </fieldset>
+  <label>첫 장에서 건너뛸 칸 수 <input type="number" name="skip" value="0" min="0" max="17" inputmode="numeric" aria-describedby="skip-help">
+    <small id="skip-help">쓰다 남은 라벨지를 쓸 때. 왼쪽 위부터 가로로 셉니다(0 = 첫 칸부터).</small></label>
+  <div class="actions"><button class="btn primary">인쇄 화면 열기</button></div>
+  <p class="muted">인쇄 창에서 <b>용지 A4 · 배율 100%(실제 크기) · 여백 없음 · 머리글/바닥글 끄기</b>로 맞춥니다. 처음에는 일반 종이에 뽑아 라벨지와 겹쳐 보세요.</p>
+</form>
+<% if (marked) { %>
+<form method="post" action="<%= base %>/labels/clear-marks" class="card" data-confirm="라벨 대상 표시 <%= marked %>건을 모두 지울까요?">
+  <p>유지보수 라벨을 다 붙였으면 표시를 지웁니다. <button class="btn">라벨 대상 표시 모두 지우기</button></p>
+</form>
+<% } %>
+<%- include('partials/foot') %>

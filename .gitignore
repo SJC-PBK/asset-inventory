@@ -1,0 +1,6 @@
+node_modules/
+data/
+.env
+demo/node_modules/
+demo/dist/
+public-repo/

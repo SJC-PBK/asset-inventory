@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>재물관리대장 시연판</title>
+<style>
+  :root { --bg: #f5f6f8; --card: #fff; --text: #1d2330; --muted: #5b6475; --accent: #1f5fbf; --line: #d9dde5; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #14171c; --card: #1d2128; --text: #e8eaee; --muted: #a5adbb; --accent: #6ea0ff; --line: #343a45; } }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 system-ui, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 32px 16px; }
+  h1 { font-size: 28px; margin: 0 0 4px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .btn { display: inline-block; padding: 12px 22px; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 700; text-decoration: none; border: 0; font: inherit; cursor: pointer; }
+  .btn.sub { background: transparent; color: var(--accent); border: 1px solid var(--accent); font-weight: 400; }
+  .muted { color: var(--muted); }
+  ul { padding-left: 20px; }
+</style>
+</head>
+<body>
+<main>
+  <p class="muted">서울특별시장애인일자리센터</p>
+  <h1>재물관리대장 시연판</h1>
+  <p>물품(자산) 대장·QR 재물조사·불용 처리·라벨 인쇄를 한 화면에서 하는 사내 웹앱을 직접 눌러 볼 수 있습니다.</p>
+  <div class="card">
+    <p><a class="btn" id="open" href="app/">시연판 열기</a> <button class="btn sub" id="reset" type="button">처음 상태로 되돌리기</button></p>
+    <p id="state" class="muted" role="status">준비하는 중…</p>
+  </div>
+  <div class="card">
+    <h2>알아 두세요</h2>
+    <ul>
+      <li>들어 있는 자산·사람 이름은 <b>모두 지어낸 자료</b>입니다.</li>
+      <li>등록·수정·사진은 <b>이 브라우저 안에만</b> 저장되고 어디로도 보내지 않습니다. 다시 와도 그대로 남아 있고, 시연판이 새로 바뀐 날에는 처음 상태로 돌아갑니다.</li>
+      <li>처음 열 때 약 1.2MB(시연판 엔진)를 받습니다. 카카오톡 등 앱 안 브라우저·시크릿 창에서는 열리지 않으니 크롬·엣지·사파리로 열어 주세요.</li>
+      <li>재물조사 화면에서 휴대폰 카메라로 <b>라벨 인쇄</b> 화면의 QR 을 찍어 볼 수 있습니다.</li>
+      <li>실제 운영판은 기관 계정으로 로그인해서 씁니다.</li>
+    </ul>
+  </div>
+</main>
+<script>
+(function () {
+  var state = document.getElementById('state');
+  var open = document.getElementById('open');
+  // 깊은 주소(…/app/…)로 들어와 이 페이지가 대신 열렸을 수도 있다 — 기준 경로를 직접 구한다
+  var m = location.pathname.match(/^(.*?\/)app(\/|$)/);
+  var BASE = m ? m[1] : location.pathname.replace(/[^/]*$/, '');
+  var deep = !!m;
+  open.href = BASE + 'app/';
+  var WHY = '이 브라우저에서는 시연판 엔진(서비스 워커)을 켤 수 없습니다. 카카오톡·슬랙 같은 앱 안에서 열었거나 사생활 보호(시크릿) 창이면 이렇습니다. 크롬·엣지·사파리를 직접 열어 이 주소로 들어와 주세요.';
+  function say(t) { state.textContent = t; }
+
+  if (!('serviceWorker' in navigator) || !window.indexedDB) {
+    say(WHY); open.setAttribute('aria-disabled', 'true'); open.addEventListener('click', function (e) { e.preventDefault(); }); return;
+  }
+
+  var booted = false;
+  var reg = navigator.serviceWorker.register(BASE + 'sw.js?v=__BUILD_ID__', { scope: BASE })
+    .then(function () { return navigator.serviceWorker.ready; });
+  reg.then(function (r) { r.active.postMessage({ type: 'warm' }); })
+    .catch(function (e) { say(WHY + ' (' + (e && e.message) + ')'); });
+
+  navigator.serviceWorker.addEventListener('message', function (e) {
+    var t = e.data && e.data.type;
+    if (t === 'ready') {
+      booted = true;
+      if (deep) { location.reload(); return; }
+      say('준비됐습니다.');
+    }
+    if (t === 'reset-done') say('처음 상태로 되돌렸습니다.');
+    if (t === 'boot-failed' || t === 'reset-failed') say('시연판을 켜지 못했습니다: ' + e.data.error + ' — 새로 고침해 보세요.');
+  });
+
+  // 열기: 엔진이 설치될 때까지 기다렸다가 연다(설치만 되면 화면 이동은 엔진이 받는다). 10초가 넘으면 원인을 알린다.
+  var waiting = false;
+  open.addEventListener('click', function (e) {
+    e.preventDefault();
+    if (waiting) return;
+    waiting = true;
+    if (!booted) say('시연판을 켜는 중입니다… 열리면 바로 넘어갑니다.');
+    var slow = setTimeout(function () { say(WHY); waiting = false; }, 10000);
+    reg.then(function () { clearTimeout(slow); location.href = open.href; })
+      .catch(function () { clearTimeout(slow); waiting = false; });
+  });
+
+  document.getElementById('reset').addEventListener('click', function () {
+    if (!confirm('이 브라우저에서 고친 내용을 모두 지우고 처음 상태로 되돌릴까요?')) return;
+    reg.then(function (r) { r.active.postMessage({ type: 'reset' }); });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<%- include('partials/head', { title: '목록 관리' }) %>
+<h1>목록 관리</h1>
+<p class="muted">자산을 입력할 때 고를 수 있는 값입니다. 한 줄에 하나씩, 보일 순서대로 적습니다. 목록에 없는 값을 자산에 적으면 자동으로 끝에 더해집니다.
+<% if (!user.admin) { %><br>관리자만 고칠 수 있습니다.<% } %></p>
+<div class="opts">
+<% for (const [kind, label] of Object.entries(kinds)) { %>
+  <form method="post" class="card form" action="<%= base %>/options">
+    <input type="hidden" name="kind" value="<%= kind %>">
+    <label><b><%= label %></b> (<%= opts[kind].length %>개)
+      <textarea name="values" rows="10"<%= user.admin ? '' : ' readonly' %>><%= opts[kind].join('\n') %></textarea></label>
+    <% if (user.admin) { %><div class="actions"><button class="btn">저장</button></div><% } %>
+  </form>
+<% } %>
+</div>
+<%- include('partials/foot') %>

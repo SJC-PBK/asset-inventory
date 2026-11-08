@@ -1,0 +1,27 @@
+{
+  "name": "itemmanager",
+  "version": "0.1.0",
+  "private": true,
+  "description": "재물관리대장 — 물품 대장·QR 재물조사·불용 처리·라벨 인쇄 (앱시트 재물관리 앱 대체용)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "import-xlsx": "node scripts/import-xlsx.js",
+    "seed-demo": "node scripts/seed-demo.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "jsqr": "^1.4.0",
+    "multer": "^2.0.2",
+    "qrcode": "^1.5.4",
+    "exceljs": "^4.4.0"
+  }
+}

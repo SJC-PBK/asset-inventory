@@ -1,0 +1,23 @@
+/* 폼텍 3218 라벨지. 칸 위치는 labels-print.ejs 가 mm 로 넣는다. */
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #888; font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Nanum Gothic", sans-serif; color: #000; }
+.toolbar { position: sticky; top: 0; background: #222; color: #fff; padding: 10px 16px; display: flex; gap: 16px; align-items: center; z-index: 1; }
+.toolbar button { font: inherit; padding: 4px 16px; }
+.sheet { position: relative; width: 210mm; height: 297mm; margin: 12px auto; background: #fff; overflow: hidden; page-break-after: always; break-after: page; }
+.label { position: absolute; padding: 2.5mm 3mm; display: flex; flex-direction: column; }
+.guide .label { outline: 0.2mm dashed #c00; }
+.org { font-size: 8.5pt; font-weight: 700; text-align: center; border-bottom: 0.3mm solid #000; padding-bottom: 1mm; margin-bottom: 1.2mm; white-space: nowrap; overflow: hidden; }
+.body { flex: 1; display: flex; gap: 2mm; min-height: 0; }
+.body table { flex: 1; border-collapse: collapse; font-size: 8pt; table-layout: fixed; }
+.body th { width: 13mm; text-align: left; font-weight: 600; vertical-align: top; padding: 0.6mm 0; white-space: nowrap; }
+.body td { padding: 0.6mm 0; vertical-align: top; overflow: hidden; word-break: break-all; }
+.body td.id { font-weight: 700; font-size: 9pt; }
+.body td.nm { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; max-height: 8.4mm; }
+.qr { width: 21mm; flex: 0 0 21mm; align-self: center; }
+.qr svg { width: 21mm; height: 21mm; display: block; }
+@media print {
+  html, body { background: #fff; }
+  .toolbar { display: none; }
+  .sheet { margin: 0; }
+}

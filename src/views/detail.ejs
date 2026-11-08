@@ -1,0 +1,111 @@
+<%- include('partials/head', { title: a.id }) %>
+<% const st = calc.status(a); const enc = encodeURIComponent(a.id); %>
+<div class="titlebar">
+  <h1><%= a.id %> <span class="tag <%= st === '사용중' ? 'ok' : st === '불용' ? 'warn' : 'gone' %>"><%= st %></span></h1>
+  <a class="btn" href="<%= base %>/a/<%= enc %>/edit">고치기</a>
+</div>
+<div class="detail">
+  <div class="card media">
+    <% if (a.photo) { %><img class="photo" src="<%= base %>/photos/<%= a.photo %>" alt="<%= a.name %> 사진"><% } else { %><p class="muted">사진 없음</p><% } %>
+    <form method="post" enctype="multipart/form-data" action="<%= base %>/a/<%= enc %>/photo" class="photo-form">
+      <label class="btn">사진 <%= a.photo ? '바꾸기' : '올리기' %>
+        <input type="file" name="photo" accept="image/*" capture="environment" class="visually-hidden" data-autosubmit></label>
+    </form>
+    <img class="qr" src="<%= base %>/a/<%= enc %>/qr.svg" alt="관리번호 <%= a.id %> QR 코드" width="120" height="120">
+  </div>
+  <div class="card">
+    <h2 class="name"><%= a.name %></h2>
+    <dl class="kv">
+      <dt>품목종류</dt><dd><%= a.category %></dd>
+      <dt>규격</dt><dd><%= a.spec %></dd>
+      <dt>수량</dt><dd><%= a.qty ?? '' %></dd>
+      <dt>단가</dt><dd><%= calc.won(a.unit_price) %></dd>
+      <dt>금액</dt><dd><%= calc.won(a.amount) %></dd>
+      <dt>구매일자</dt><dd><%= a.purchase_date %></dd>
+      <dt>사용기간</dt><dd><%= calc.usePeriod(a.purchase_date) %></dd>
+      <dt>내용연수</dt><dd><%= a.useful_life ? a.useful_life + '년 (' + calc.lifeState(a.purchase_date, a.useful_life) + ')' : '' %></dd>
+      <dt>현재위치</dt><dd><%= a.location %></dd>
+      <dt>현 사용자</dt><dd><%= a.holder %></dd>
+      <dt>담당부서</dt><dd><%= a.dept %></dd>
+      <dt>관련기안</dt><dd><%= a.approval_doc %></dd>
+      <dt>원관리번호</dt><dd><%= a.old_id %></dd>
+      <dt>비고</dt><dd class="pre"><%= a.note %></dd>
+      <% if (a.discard_date) { %><dt>폐기일자</dt><dd><%= a.discard_date %> <%= a.discard_reason %></dd><% } %>
+      <dt>마지막 수정</dt><dd class="muted"><%= a.updated_at %> <%= a.updated_by %></dd>
+    </dl>
+  </div>
+</div>
+
+<div class="card row-actions">
+  <% if (survey && st === '사용중') { %>
+    <a class="btn primary" href="<%= base %>/survey/check?code=<%= enc %>">재물조사 기록<%= surveyCheck ? ' (완료 ' + surveyCheck.checked_at.slice(5, 16) + ')' : '' %></a>
+  <% } %>
+  <form method="post" action="<%= base %>/a/<%= enc %>/label">
+    <input type="hidden" name="on" value="<%= a.label_mark ? '0' : '1' %>">
+    <button class="btn"><%= a.label_mark ? '라벨 대상에서 빼기' : '라벨 대상에 넣기' %></button>
+  </form>
+  <a class="btn" href="<%= base %>/labels/print?mode=ids&ids=<%= enc %>" target="_blank" rel="noopener">이 자산 라벨 인쇄</a>
+  <% if (!a.disused) { %>
+    <a class="btn warn" href="<%= base %>/a/<%= enc %>/disuse">불용 처리</a>
+  <% } else { %>
+    <a class="btn" href="<%= base %>/a/<%= enc %>/disuse">불용 정보<%= a.discard_date ? '' : '·폐기 완료' %></a>
+    <form method="post" action="<%= base %>/a/<%= enc %>/restore" data-confirm="불용을 풀고 사용 중으로 되돌릴까요? 불용물품 기록은 지워집니다.">
+      <button class="btn">불용 복구</button>
+    </form>
+  <% } %>
+</div>
+
+<% if (disposal) { %>
+<section class="card">
+  <h2>불용 정보</h2>
+  <dl class="kv">
+    <dt>불용이감일시</dt><dd><%= disposal.moved_at %></dd>
+    <dt>상태</dt><dd><%= disposal.grade %></dd>
+    <dt>불용결정일자</dt><dd><%= disposal.decided_on %></dd>
+    <dt>불용결정사유</dt><dd><%= disposal.reason %></dd>
+    <dt>물품소재지</dt><dd><%= disposal.place %></dd>
+    <dt>처분의견</dt><dd><%= disposal.opinion %></dd>
+    <dt>처리일자</dt><dd><%= disposal.processed_on %></dd>
+    <dt>처리결과</dt><dd><%= disposal.result %></dd>
+    <dt>비고</dt><dd><%= disposal.note %></dd>
+  </dl>
+</section>
+<% } %>
+
+<section class="card">
+  <h2>변동 이력 <span class="muted">(바뀌기 전 모습)</span></h2>
+  <% if (!history.length) { %><p class="muted">아직 없습니다.</p><% } else { %>
+  <div class="table-wrap"><table class="list">
+    <thead><tr><th scope="col">일시</th><th scope="col">구분</th><th scope="col">바뀐 내용</th><th scope="col">이전 위치</th><th scope="col">이전 사용자</th><th scope="col">한 사람</th></tr></thead>
+    <tbody><% for (const h of history) { %>
+      <tr><td><%= h.changed_at %></td><td><%= h.reason %></td><td class="pre"><%= h.changes %></td>
+      <td><%= h.prev_location %></td><td><%= h.prev_holder %></td><td class="muted"><%= h.changed_by %></td></tr>
+    <% } %></tbody>
+  </table></div>
+  <% } %>
+</section>
+
+<section class="card">
+  <h2>재물조사 기록</h2>
+  <% if (!checks.length) { %><p class="muted">아직 없습니다.</p><% } else { %>
+  <div class="table-wrap"><table class="list">
+    <thead><tr><th scope="col">조사</th><th scope="col">일시</th><th scope="col">특이사항</th><th scope="col">변동</th><th scope="col">한 사람</th></tr></thead>
+    <tbody><% for (const c of checks) { %>
+      <tr><td><%= c.title %></td><td><%= c.checked_at %></td><td><%= c.remark %></td>
+      <td><%= c.changed ? '있음 → ' + [c.location, c.holder, c.dept].filter(Boolean).join(' / ') : '' %></td><td class="muted"><%= c.checked_by %></td></tr>
+    <% } %></tbody>
+  </table></div>
+  <% } %>
+</section>
+
+<% if (user.admin) { %>
+<details class="card danger">
+  <summary>자산 삭제</summary>
+  <p>잘못 등록한 자산만 지우세요. 쓰지 않게 된 물품은 <b>불용 처리</b>합니다. 삭제하면 변동 이력·조사 기록도 함께 지워지고 되돌릴 수 없습니다.</p>
+  <form method="post" action="<%= base %>/a/<%= enc %>/delete">
+    <label>확인을 위해 관리번호 <b><%= a.id %></b> 를 적어 주세요 <input name="confirm" autocomplete="off"></label>
+    <button class="btn danger">삭제</button>
+  </form>
+</details>
+<% } %>
+<%- include('partials/foot') %>

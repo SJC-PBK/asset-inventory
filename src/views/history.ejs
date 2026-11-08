@@ -1,0 +1,16 @@
+<%- include('partials/head', { title: '변동 이력' }) %>
+<h1>변동 이력</h1>
+<p class="muted">자산 내용이 바뀔 때마다 바뀌기 전 모습을 남깁니다. 최근 300건.</p>
+<div class="table-wrap">
+<table class="list">
+  <thead><tr><th scope="col">일시</th><th scope="col">관리번호</th><th scope="col">품명</th><th scope="col">구분</th><th scope="col">바뀐 내용</th><th scope="col">한 사람</th></tr></thead>
+  <tbody>
+  <% for (const h of rows) { %>
+    <tr><td><%= h.changed_at %></td><td><a href="<%= base %>/a/<%= encodeURIComponent(h.asset_id) %>"><%= h.asset_id %></a></td>
+      <td><%= h.cur_name || h.name %></td><td><%= h.reason %></td><td class="pre"><%= h.changes %></td><td class="muted"><%= h.changed_by %></td></tr>
+  <% } %>
+  <% if (!rows.length) { %><tr><td colspan="6" class="empty">아직 없습니다.</td></tr><% } %>
+  </tbody>
+</table>
+</div>
+<%- include('partials/foot') %>

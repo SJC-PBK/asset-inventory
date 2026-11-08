@@ -1,0 +1,17 @@
+# 재물관리대장 시연판 — 화면 주소(app/…)는 브라우저 안 서비스 워커가 만든다.
+# 워커가 아직 없을 때 깊은 주소로 들어오면 안내 페이지가 받아 워커를 등록한 뒤 같은 주소를 다시 연다.
+DirectoryIndex index.html
+AddType application/wasm .wasm
+<IfModule mod_rewrite.c>
+RewriteEngine On
+# 하위 폴더의 RewriteEngine 은 웹루트 규칙을 덮는다 — HTTPS 이동을 여기서도 한다
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+RewriteRule ^app(/.*)?$ index.html [L]
+</IfModule>
+<IfModule mod_headers.c>
+<Files "sw.js">
+Header set Cache-Control "no-cache"
+</Files>
+</IfModule>

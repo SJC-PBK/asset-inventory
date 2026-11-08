@@ -1,0 +1,9 @@
+<%- include('partials/head', { title: '재물조사' }) %>
+<h1>재물조사</h1>
+<form method="post" class="card form" action="<%= base %>/survey/start">
+  <p>지금 열려 있는 조사가 없습니다. 조사를 시작하면 휴대폰으로 라벨 QR 을 찍어 하나씩 확인합니다.</p>
+  <label>조사 이름 <input name="title" value="<%= new Date().getFullYear() %>년 정기 재물조사"></label>
+  <div class="actions"><button class="btn primary">조사 시작</button></div>
+</form>
+<%- include('partials/rounds', { rounds }) %>
+<%- include('partials/foot') %>

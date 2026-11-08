@@ -1,0 +1,15 @@
+<%- include('partials/head', { title: 'QR 조사' }) %>
+<h1>QR 조사 <span class="muted small"><%= survey.title %></span></h1>
+<div class="scan card">
+  <video id="cam" playsinline muted aria-label="카메라 화면"></video>
+  <canvas id="frame" hidden></canvas>
+  <p id="scan-state" class="muted" role="status">카메라를 켜는 중…</p>
+  <button type="button" class="btn" id="cam-start" hidden>카메라 켜기</button>
+</div>
+<form method="get" action="<%= base %>/survey/check" class="card form">
+  <label>관리번호 직접 입력 · 바코드 스캐너 <input name="code" id="code" autocomplete="off" placeholder="S2026-001" autofocus></label>
+  <div class="actions"><button class="btn primary">확인</button> <a class="btn" href="<%= base %>/survey">조사 현황</a></div>
+</form>
+<script src="<%= base %>/static/vendor/jsqr/jsQR.js"></script>
+<script src="<%= base %>/static/js/scan.js" data-check="<%= base %>/survey/check?code="></script>
+<%- include('partials/foot') %>

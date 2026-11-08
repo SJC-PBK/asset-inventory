@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= typeof title !== 'undefined' ? title + ' · ' : '' %>재물관리대장</title>
+<link rel="stylesheet" href="<%= base %>/static/css/app.css">
+</head>
+<body>
+<% if (config.demo) { %><div class="demo-bar">시연판입니다 — 지어낸 자료이며, 고친 내용은 이 브라우저에만 남습니다.</div><% } %>
+<header class="top">
+  <a class="brand" href="<%= base %>/">재물관리대장</a>
+  <nav aria-label="주 메뉴">
+    <% const nav = [['/', '자산 목록'], ['/survey', '재물조사'], ['/labels', '라벨 인쇄'], ['/disposals', '불용물품'], ['/history', '변동 이력'], ['/options', '목록 관리']];
+    if (user.admin) nav.push(['/permissions', '권한']); %>
+    <% for (const [href, label] of nav) { const on = href === '/' ? (path === '/' || path.startsWith('/a/') || path === '/new') : path.startsWith(href); %>
+      <a href="<%= base %><%= href %>"<% if (on) { %> aria-current="page"<% } %>><%= label %></a>
+    <% } %>
+  </nav>
+  <span class="who"><%= user.name %></span>
+</header>
+<main>
+<% if (msg) { %><p class="flash ok" role="status"><%= msg %></p><% } %>
+<% if (err) { %><p class="flash bad" role="alert"><%= err %></p><% } %>
